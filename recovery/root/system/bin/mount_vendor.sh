@@ -1,27 +1,27 @@
 #!/system/bin/sh
 
+i=0
 
-#Try mounting vendor partition
+echo "Starting mount_vendor.sh...." | tee /dev/kmsg > /dev/null
 
-mount | grep dm-4
+while true; do
 
-if [ $? -eq 0 ]
-then
-  echo "Vendor already mounted!"
-  exit 1
-else
-  echo "Vendor not mounted, continue..."
-fi
+    keycheck
+
+    if [ $? -eq 41 ]; then
+        # Incrementa il contatore
+        ((i++))
+        echo "Volume down detected, $i" | tee /dev/kmsg > /dev/null
+
+    fi
+
+    # Controlla se il contatore è uguale a 2
+    if [ "$i" -eq 2 ]; then
+        echo "mount_vendor triggered..." | tee /dev/kmsg > /dev/null
+        break
+    fi
+
+    sleep 1
+done
 
 twrp mount /vendor
-
-if [ $? -eq 0 ]
-then
-  echo "Success: vendor mounted!"
-  exit 0
-else
-  echo "Failure: unable to mount vendor"
-  exit 1
-fi
-
-
